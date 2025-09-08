@@ -1,16 +1,12 @@
-# notesapi.py
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-import models, schemas
-from database import SessionLocal, engine
-from auth import router as auth_router, get_current_user
+from app import models, schemas
+from app.auth import get_current_user
+from app.database import SessionLocal
 
-models.Base.metadata.create_all(bind=engine)
+router = APIRouter(prefix="/notes", tags=["notes"])
 
-app = FastAPI()
-
-# Dependency: DB session
 def get_db():
     db = SessionLocal()
     try:
@@ -18,11 +14,7 @@ def get_db():
     finally:
         db.close()
 
-# include auth routes
-app.include_router(auth_router)
-
-# ---------- Notes ----------
-@app.post("/notes/", response_model=schemas.NoteResponse)
+@router.post("/", response_model=schemas.NoteResponse)
 def create_note(
     note: schemas.NoteCreate,
     db: Session = Depends(get_db),
@@ -38,14 +30,14 @@ def create_note(
     db.refresh(db_note)
     return db_note
 
-@app.get("/notes/", response_model=List[schemas.NoteResponse])
+@router.get("/", response_model=List[schemas.NoteResponse])
 def read_notes(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
     return db.query(models.NoteDB).filter(models.NoteDB.owner_id == current_user.id).all()
 
-@app.get("/notes/{note_id}", response_model=schemas.NoteResponse)
+@router.get("/{note_id}", response_model=schemas.NoteResponse)
 def read_note(
     note_id: int,
     db: Session = Depends(get_db),
@@ -59,7 +51,7 @@ def read_note(
         raise HTTPException(status_code=404, detail="Note not found")
     return note
 
-@app.put("/notes/{note_id}", response_model=schemas.NoteResponse)
+@router.put("/{note_id}", response_model=schemas.NoteResponse)
 def update_note(
     note_id: int,
     update_data: schemas.NoteUpdate,
@@ -82,7 +74,7 @@ def update_note(
     db.refresh(note)
     return note
 
-@app.delete("/notes/{note_id}")
+@router.delete("/{note_id}")
 def delete_note(
     note_id: int,
     db: Session = Depends(get_db),

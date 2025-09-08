@@ -1,17 +1,16 @@
-# auth.py
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-import models, schemas, utils
-from database import SessionLocal
+from app import models, schemas, utils
+from app.database import SessionLocal
 
-SECRET_KEY = "supersecret"  # change this in real projects
+SECRET_KEY = "supersecret"  # change in real apps
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-router = APIRouter()
+router = APIRouter(tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
