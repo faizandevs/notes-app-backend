@@ -1,4 +1,5 @@
 # app/main.py
+ 
 import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -7,7 +8,8 @@ from app.database import engine, Base
 from app import models
 from app.routers import auth as auth_router, notes as notes_router
 from app.exceptions import NotFoundError, ForbiddenError, BadRequestError
-
+from dotenv import load_dotenv
+load_dotenv()
 # create tables if missing (dev convenience)
 Base.metadata.create_all(bind=engine)
 

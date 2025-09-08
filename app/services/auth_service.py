@@ -3,8 +3,9 @@ from datetime import datetime, timedelta
 from jose import jwt
 from sqlalchemy.orm import Session
 from app import models, utils
+import os
 
-SECRET_KEY = "supersecret"  # later load from env/config
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")  # fallback for local testing
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
