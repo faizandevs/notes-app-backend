@@ -1,3 +1,4 @@
+# app/schemas.py
 from pydantic import BaseModel
 from typing import Optional
 
@@ -11,7 +12,7 @@ class NoteCreate(NoteBase):
 
 class NoteUpdate(BaseModel):
     title: Optional[str] = None
-    description: Optional[str] = None
+    description: Optional[str] = None   # FIXED (was `content`)
 
 class NoteResponse(NoteBase):
     id: int
@@ -32,3 +33,9 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ---------- Token ----------
+class Token(BaseModel):
+    access_token: str
+    token_type: str

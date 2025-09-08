@@ -1,14 +1,42 @@
-from fastapi import FastAPI
-from app.database import engine
+# app/main.py
+import logging
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+from app.database import engine, Base
 from app import models
-from app.auth import router as auth_router
-from app.notes import router as notes_router
+from app.routers import auth as auth_router, notes as notes_router
+from app.exceptions import NotFoundError, ForbiddenError, BadRequestError
 
-# Create tables if they don't exist
-models.Base.metadata.create_all(bind=engine)
+# create tables if missing (dev convenience)
+Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+# basic logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
+
+app = FastAPI(title="Notes API (polished)")
 
 # include routers
-app.include_router(auth_router)
-app.include_router(notes_router)
+app.include_router(auth_router.router)
+app.include_router(notes_router.router)
+
+
+# Global exception handlers (consistent JSON responses)
+@app.exception_handler(NotFoundError)
+async def not_found_handler(request: Request, exc: NotFoundError):
+    return JSONResponse(status_code=404, content={"error": str(exc)})
+
+@app.exception_handler(ForbiddenError)
+async def forbidden_handler(request: Request, exc: ForbiddenError):
+    return JSONResponse(status_code=403, content={"error": str(exc)})
+
+@app.exception_handler(BadRequestError)
+async def bad_request_handler(request: Request, exc: BadRequestError):
+    return JSONResponse(status_code=400, content={"error": str(exc)})
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    # log full exception for operators, but return safe message to clients
+    logger.exception("Unhandled exception: %s", exc)
+    return JSONResponse(status_code=500, content={"error": "Internal server error"})
