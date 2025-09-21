@@ -17,6 +17,7 @@ class NoteUpdate(BaseModel):
 class NoteResponse(NoteBase):
     id: int
     owner_id: int
+    sentiment: str
 
     class Config:
         from_attributes = True
