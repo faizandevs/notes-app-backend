@@ -21,18 +21,20 @@ app = FastAPI(title="Notes API")
 # Allow frontend origin
 # --- Add CORS ---
 origins = [
-    "https://notes-app-frontend-nu-blue.vercel.app",  # your Vercel frontend
-    "http://localhost:5173",  # keep this for local dev
+    "http://localhost:5173",   # Vite dev server (frontend local)
+    "http://127.0.0.1:5173",   # Some setups use 127.0.0.1
+    "http://localhost:5174",   # If you run on port 5174
+    "http://127.0.0.1:5174",
+    "https://notes-app-frontend-nu-blue.vercel.app",  # Your deployed frontend
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,        # domains allowed
+    allow_origins=origins,         # frontend URLs allowed
     allow_credentials=True,
-    allow_methods=["*"],          # allow all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],          # allow all headers
+    allow_methods=["*"],           # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],           # Allow all headers
 )
-
 # include routers
 app.include_router(auth_router.router)
 app.include_router(notes_router.router)
