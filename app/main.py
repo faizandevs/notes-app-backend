@@ -19,21 +19,20 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Notes API")
 # Allow frontend origin
+# --- Add CORS ---
 origins = [
-    "http://localhost:5173",   # Vite dev server
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",   # React default port
-    "http://127.0.0.1:3000",
-    "https://notes-app-backend-54zl.onrender.com"  # your deployed backend
+    "https://notes-app-frontend-nu-blue.vercel.app",  # your Vercel frontend
+    "http://localhost:5173",  # keep this for local dev
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=origins,        # domains allowed
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],          # allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],          # allow all headers
 )
+
 # include routers
 app.include_router(auth_router.router)
 app.include_router(notes_router.router)
